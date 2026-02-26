@@ -14,6 +14,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Inyección de dependencias
 builder.Services.AddScoped<IFacturaRepository, FacturaRepository>();
 builder.Services.AddScoped<RegistrarPagoUseCase>();
+builder.Services.AddScoped<CrearFacturaUseCase>();
+builder.Services.AddScoped<ObtenerFacturaUseCase>();
 
 // Configurar controladores y swagger
 builder.Services.AddControllers();
@@ -23,11 +25,14 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configurar el pipeline HTTP
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+}*/
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthorization();
 app.MapControllers();
