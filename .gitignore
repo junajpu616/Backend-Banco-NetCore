@@ -1,0 +1,107 @@
+## ──────────────────────────────────────────────
+## .NET / C# — archivos compilados y temporales
+## ──────────────────────────────────────────────
+
+# Salida de compilación (generada automáticamente, puede ser grande)
+[Bb]in/
+[Oo]bj/
+
+# Archivos de publicación
+[Pp]ublish/
+PublishProfiles/
+
+# NuGet — paquetes descargados localmente
+.nuget/
+*.nupkg
+*.snupkg
+packages/
+!*.[Cc]ache/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Archivos de compilación MSBuild
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de test y cobertura
+TestResults/
+[Cc]overage*/
+*.coveragexml
+*.trx
+
+## ──────────────────────────────────────────────
+## CREDENCIALES Y SECRETOS — NUNCA en git
+## ──────────────────────────────────────────────
+
+# Equivalente al .env — aquí van las credenciales reales de desarrollo
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+
+# Secretos de usuario de .NET (dotnet user-secrets)
+secrets.json
+
+# Certificados y claves
+*.pfx
+*.pem
+*.key
+*.cer
+
+## ──────────────────────────────────────────────
+## IDEs y editores
+## ──────────────────────────────────────────────
+
+# Visual Studio
+.vs/
+*.rsuser
+*.vspx
+*.sap
+
+# Visual Studio Code (configuración de usuario, no del proyecto)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/*.code-workspace
+!.vscode/extensions.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## ──────────────────────────────────────────────
+## Sistema operativo
+## ──────────────────────────────────────────────
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+## ──────────────────────────────────────────────
+## Logs y base de datos local
+## ──────────────────────────────────────────────
+*.log
+*.sqlite
+*.db
+*.mdf
+*.ldf
+
+*.claude
