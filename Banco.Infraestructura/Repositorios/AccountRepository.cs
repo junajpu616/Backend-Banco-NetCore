@@ -30,6 +30,42 @@ public class AccountRepository : IAccountRepository
         return account;
     }
 
+    public async Task<Account> AddWithInitialDepositAsync(Account account, decimal initialDeposit, Guid executedById)
+    {
+        // Create account and optional initial deposit in a single DB transaction
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            _db.Accounts.Add(account);
+
+            if (initialDeposit > 0)
+            {
+                account.Balance = initialDeposit;
+
+                var deposit = new Transaction
+                {
+                    Id = Guid.NewGuid(),
+                    DestinationAccountId = account.Id,
+                    Amount = initialDeposit,
+                    TransactionType = "Deposit",
+                    ExecutedById = executedById,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                _db.Transactions.Add(deposit);
+            }
+
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+            return account;
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+    }
+
     public async Task<bool> AccountNumberExistsAsync(string accountNumber) =>
         await _db.Accounts.AnyAsync(a => a.AccountNumber == accountNumber);
 }

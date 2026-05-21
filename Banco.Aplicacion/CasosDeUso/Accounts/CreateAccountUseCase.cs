@@ -18,7 +18,7 @@ public class CreateAccountUseCase
         _userRepo = userRepo;
     }
 
-    public async Task<AccountResponseDto> ExecuteAsync(CreateAccountDto dto)
+    public async Task<AccountResponseDto> ExecuteAsync(CreateAccountDto dto, Guid executedById)
     {
         if (!ValidTypes.Contains(dto.AccountType))
             throw new BusinessException("Tipo de cuenta inválido. Tipos válidos: Ahorro, Corriente");
@@ -37,10 +37,11 @@ public class CreateAccountUseCase
             UserId = dto.UserId,
             AccountNumber = accountNumber,
             AccountType = dto.AccountType,
-            Balance = dto.InitialBalance
+            Balance = 0m
         };
 
-        await _accountRepo.AddAsync(account);
+        // Create account and optional initial deposit atomically
+        await _accountRepo.AddWithInitialDepositAsync(account, dto.InitialBalance, executedById);
 
         return new AccountResponseDto
         {

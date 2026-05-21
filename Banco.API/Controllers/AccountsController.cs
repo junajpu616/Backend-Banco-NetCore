@@ -57,15 +57,16 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin, Supervisor] Crea una cuenta bancaria para un usuario existente.
+    /// [Admin] Crea una cuenta bancaria para un usuario existente.
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = $"{Roles.Admin},{Roles.Supervisor}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CreateAccountDto dto)
     {
         try
         {
-            var result = await _createAccount.ExecuteAsync(dto);
+            var executedBy = GetCurrentUserId();
+            var result = await _createAccount.ExecuteAsync(dto, executedBy);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
         catch (BusinessException ex)

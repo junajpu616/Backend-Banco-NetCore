@@ -56,23 +56,14 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// [Admin] Crea cualquier rol. [Supervisor] Crea solo Cajero y Cliente.
+    /// [Admin] Crea un usuario con cualquier rol.
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = $"{Roles.Admin},{Roles.Supervisor}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
         try
         {
-            var callerRole = User.FindFirstValue(ClaimTypes.Role)!;
-
-            // Supervisor no puede crear Admin ni otro Supervisor
-            if (callerRole == Roles.Supervisor &&
-                (dto.Role == Roles.Admin || dto.Role == Roles.Supervisor))
-            {
-                return Forbid();
-            }
-
             var result = await _createUser.ExecuteAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }

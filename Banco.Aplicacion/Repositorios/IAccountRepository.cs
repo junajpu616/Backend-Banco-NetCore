@@ -9,5 +9,6 @@ public interface IAccountRepository
     Task<IEnumerable<Account>> GetAllAsync();
     Task<IEnumerable<Account>> GetByUserIdAsync(Guid userId);
     Task<Account> AddAsync(Account account);
+    Task<Account> AddWithInitialDepositAsync(Account account, decimal initialDeposit, Guid executedById);
     Task<bool> AccountNumberExistsAsync(string accountNumber);
 }

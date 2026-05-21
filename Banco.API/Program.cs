@@ -4,11 +4,14 @@ using Banco.Aplicacion.CasosDeUso.Auth;
 using Banco.Aplicacion.CasosDeUso.Users;
 using Banco.Aplicacion.Repositorios;
 using Banco.Aplicacion.Servicios;
+using Banco.Dominio.Constantes;
+using Banco.Dominio.Entidades;
 using Banco.Infraestructura.Datos;
 using Banco.Infraestructura.Repositorios;
 using Banco.Infraestructura.Servicios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -25,6 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 // ──────────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountRequestRepository, AccountRequestRepository>();
 
 // ──────────────────────────────────────────────────────────────────────
 // Servicios de infraestructura
@@ -41,6 +45,9 @@ builder.Services.AddScoped<CreateUserUseCase>();
 builder.Services.AddScoped<GetUsersUseCase>();
 builder.Services.AddScoped<CreateAccountUseCase>();
 builder.Services.AddScoped<GetAccountsUseCase>();
+builder.Services.AddScoped<CreateAccountRequestUseCase>();
+builder.Services.AddScoped<GetAccountRequestsUseCase>();
+builder.Services.AddScoped<ApproveAccountRequestUseCase>();
 
 // ──────────────────────────────────────────────────────────────────────
 // Autenticación JWT
@@ -111,13 +118,18 @@ builder.Services.AddSwaggerGen(c =>
 // ──────────────────────────────────────────────────────────────────────
 // CORS (para Next.js en desarrollo)
 // ──────────────────────────────────────────────────────────────────────
+var frontendOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:3000";
+
 builder.Services.AddCors(opt =>
     opt.AddPolicy("FrontendPolicy", policy =>
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(frontendOrigin)
               .AllowAnyHeader()
               .AllowAnyMethod()));
 
 var app = builder.Build();
+
+await WaitForDatabaseAsync(app.Services);
+await SeedDatabaseAsync(app.Services);
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banco API v1"));
@@ -129,3 +141,76 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static async Task WaitForDatabaseAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var retries = 10;
+    var delay = TimeSpan.FromSeconds(3);
+
+    for (var attempt = 1; attempt <= retries; attempt++)
+    {
+        if (await db.Database.CanConnectAsync())
+        {
+            return;
+        }
+
+        if (attempt == retries)
+        {
+            throw new InvalidOperationException("No se pudo conectar a la base de datos después de varios intentos.");
+        }
+
+        await Task.Delay(delay);
+    }
+}
+
+static async Task SeedDatabaseAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.EnsureCreatedAsync();
+
+    if (await db.Users.AnyAsync())
+    {
+        return;
+    }
+
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+    db.Users.AddRange(
+        new User
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Admin",
+            LastName = "Banco",
+            Email = "admin@banco.com",
+            PasswordHash = passwordHasher.Hash("Admin123!"),
+            Role = Roles.Admin,
+            CreatedAt = DateTime.UtcNow
+        },
+        new User
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Supervisor",
+            LastName = "Banco",
+            Email = "supervisor@banco.com",
+            PasswordHash = passwordHasher.Hash("Supervisor123!"),
+            Role = Roles.Supervisor,
+            CreatedAt = DateTime.UtcNow
+        },
+        new User
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Cliente",
+            LastName = "Prueba",
+            Email = "cliente@banco.com",
+            PasswordHash = passwordHasher.Hash("Cliente123!"),
+            Role = Roles.Cliente,
+            CreatedAt = DateTime.UtcNow
+        }
+    );
+
+    await db.SaveChangesAsync();
+}

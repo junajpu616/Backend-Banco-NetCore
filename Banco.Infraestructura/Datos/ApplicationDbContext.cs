@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<AccountRequest> AccountRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +62,19 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.ExecutedBy)
                 .WithMany(u => u.ExecutedTransactions)
                 .HasForeignKey(e => e.ExecutedById)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AccountRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.AccountType).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.InitialBalance).HasColumnType("decimal(18,2)").IsRequired();
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
