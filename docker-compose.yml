@@ -17,29 +17,25 @@ services:
       start_period: 10s
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: banco-api:v1
+    image: junajpu616/banco-api:v1
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=BancoUniversitarioDB;Username=banco;Password=banco123
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "8080:8080"
 
   frontend:
-    build:
-      context: ../banco-frontend
-      dockerfile: Dockerfile
-    image: banco-frontend:v1
+    image: junajpu616/banco-frontend:v1
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_BASE_URL=/api
     depends_on:
       api:
         condition: service_started
-    expose:
+    ports:
       - "3000"
 
   nginx:
