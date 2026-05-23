@@ -73,6 +73,26 @@ public class UsersController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Registro público para clientes. Crea un usuario con rol `Cliente` únicamente.
+    /// </summary>
+    [HttpPost("register")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Register([FromBody] CreateUserDto dto)
+    {
+        try
+        {
+            // Force role to Cliente regardless of caller input
+            dto.Role = Roles.Cliente;
+            var result = await _createUser.ExecuteAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        }
+        catch (BusinessException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     private Guid GetCurrentUserId() =>
         Guid.Parse(User.FindFirstValue("userId")!);
 }

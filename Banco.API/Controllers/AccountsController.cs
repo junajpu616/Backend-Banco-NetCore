@@ -45,6 +45,16 @@ public class AccountsController : ControllerBase
     }
 
     /// <summary>
+    /// [Autenticado] Obtiene una cuenta por su número (útil para resolver destino por número).
+    /// </summary>
+    [HttpGet("by-number/{number}")]
+    public async Task<IActionResult> GetByNumber(string number)
+    {
+        var account = await _getAccounts.ExecuteByNumberAsync(number);
+        return account is null ? NotFound() : Ok(account);
+    }
+
+    /// <summary>
     /// [Cliente] Lista únicamente las cuentas propias del cliente autenticado.
     /// </summary>
     [HttpGet("my-accounts")]

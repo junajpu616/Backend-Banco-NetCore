@@ -49,7 +49,7 @@ public class AccountRequestsController : ControllerBase
     /// [Admin] Lista todas las solicitudes.
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Permissions.RequestsRead)]
     public async Task<IActionResult> GetAll()
     {
         var list = await _getRequests.ExecuteAsync();
@@ -60,7 +60,7 @@ public class AccountRequestsController : ControllerBase
     /// [Admin] Obtener solicitud por id.
     /// </summary>
     [HttpGet("{id:guid}")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Permissions.RequestsRead)]
     public async Task<IActionResult> GetById(Guid id)
     {
         var request = await _getRequests.ExecuteAsync();
@@ -72,7 +72,7 @@ public class AccountRequestsController : ControllerBase
     /// [Admin] Aprobar una solicitud.
     /// </summary>
     [HttpPost("{id:guid}/approve")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Permissions.AccountsApproveRequests)]
     public async Task<IActionResult> Approve(Guid id)
     {
         try
@@ -91,7 +91,7 @@ public class AccountRequestsController : ControllerBase
     /// [Admin] Rechazar una solicitud.
     /// </summary>
     [HttpPost("{id:guid}/reject")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Policy = Permissions.AccountsApproveRequests)]
     public async Task<IActionResult> Reject(Guid id, [FromBody] string? reason)
     {
         try

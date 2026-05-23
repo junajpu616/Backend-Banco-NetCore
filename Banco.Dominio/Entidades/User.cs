@@ -8,8 +8,10 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public Guid? RoleId { get; set; }
     public DateTime CreatedAt { get; set; }
 
+    public Role? RoleDefinition { get; set; }
     public ICollection<Account> Accounts { get; set; } = new List<Account>();
     public ICollection<Transaction> ExecutedTransactions { get; set; } = new List<Transaction>();
 }

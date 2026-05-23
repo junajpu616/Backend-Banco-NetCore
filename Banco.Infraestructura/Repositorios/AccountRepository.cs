@@ -68,4 +68,9 @@ public class AccountRepository : IAccountRepository
 
     public async Task<bool> AccountNumberExistsAsync(string accountNumber) =>
         await _db.Accounts.AnyAsync(a => a.AccountNumber == accountNumber);
+
+    public async Task<Account?> GetByNumberAsync(string accountNumber)
+    {
+        return await _db.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
+    }
 }

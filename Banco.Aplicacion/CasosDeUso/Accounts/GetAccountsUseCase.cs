@@ -31,6 +31,12 @@ public class GetAccountsUseCase
         return account is null ? null : Map(account);
     }
 
+    public async Task<AccountResponseDto?> ExecuteByNumberAsync(string number)
+    {
+        var account = await _accountRepo.GetByNumberAsync(number);
+        return account is null ? null : Map(account);
+    }
+
     private static AccountResponseDto Map(Account a) => new()
     {
         Id = a.Id,

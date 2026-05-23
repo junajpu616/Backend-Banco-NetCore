@@ -2,8 +2,6 @@ namespace Banco.Aplicacion.CasosDeUso.Accounts;
 
 using Banco.Aplicacion.DTOs.Accounts;
 using Banco.Aplicacion.Repositorios;
-using Banco.Aplicacion.CasosDeUso.Accounts;
-using Banco.Aplicacion.DTOs.Accounts;
 using Banco.Dominio.Entidades;
 using Banco.Dominio.Excepciones;
 
