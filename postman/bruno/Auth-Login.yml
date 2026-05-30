@@ -1,0 +1,50 @@
+name: Login
+request:
+  method: POST
+  url: "{{baseUrl}}/api/auth/login"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    content: |
+      {
+        "email": "admin@banco.com",
+        "password": "Admin123!"
+      }
+postResponseScript: |
+  (function(){
+    try {
+      var body = null;
+      if (typeof res !== 'undefined' && typeof res.getBody === 'function') {
+        try { body = JSON.parse(res.getBody()); } catch(e) { body = res.getBody(); }
+      } else if (typeof pm !== 'undefined' && pm.response) {
+        try { body = pm.response.json(); } catch(e) { body = null; }
+      }
+      if (!body || !body.token) return;
+
+      // Bruno: try common setters
+      try {
+        if (typeof client !== 'undefined' && typeof client.setEnvironmentVariable === 'function') {
+          client.setEnvironmentVariable('token', body.token);
+          client.setEnvironmentVariable('userId', body.userId || '');
+          client.setEnvironmentVariable('role', body.role || '');
+          client.setEnvironmentVariable('fullName', body.fullName || '');
+          return;
+        }
+      } catch(e){}
+
+      try {
+        if (typeof setEnvironmentVariable === 'function') {
+          setEnvironmentVariable('token', body.token);
+          setEnvironmentVariable('userId', body.userId || '');
+          setEnvironmentVariable('role', body.role || '');
+          setEnvironmentVariable('fullName', body.fullName || '');
+          return;
+        }
+      } catch(e){}
+
+      // Fallback: print token to console for manual copy
+      try { console.log('Auth token:', body.token); } catch(e){}
+    } catch(e) { /* ignore */ }
+  })();

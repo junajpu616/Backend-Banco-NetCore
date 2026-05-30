@@ -1,0 +1,27 @@
+name: Deposit (Cajero)
+request:
+  method: POST
+  url: "{{baseUrl}}/api/transactions/deposit"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    mode: raw
+    content: |
+      {
+        "accountId": "00000000-0000-0000-0000-000000000000",
+        "amount": 50.00
+      }
+preRequestScript: |
+  (function(){
+    try {
+      var token = null;
+      if (typeof client !== 'undefined' && typeof client.getEnvironmentVariable === 'function') token = client.getEnvironmentVariable('token');
+      if (!token && typeof getEnvironmentVariable === 'function') token = getEnvironmentVariable('token');
+      if (token) {
+        if (!request.headers) request.headers = [];
+        request.headers = request.headers.filter(h => h.name.toLowerCase() !== 'authorization');
+        request.headers.push({ name: 'Authorization', value: 'Bearer ' + token });
+      }
+    } catch(e){}
+  })();

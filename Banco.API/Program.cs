@@ -138,8 +138,10 @@ builder.Services.AddSwaggerGen(c =>
 var frontendOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:3000";
 
 builder.Services.AddCors(opt =>
+    // WARNING: Temporarily allowing any origin. Use only for short-lived testing.
+    // In production, restrict origins or use configuration to whitelist domains.
     opt.AddPolicy("FrontendPolicy", policy =>
-        policy.WithOrigins(frontendOrigin)
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod()));
 
